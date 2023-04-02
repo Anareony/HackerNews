@@ -1,6 +1,6 @@
 
-export const mapTime = (timestamp:any) => {
-    let date:any = new Date()
+export const mapTime = (timestamp:number) => {
+    let date = Number(new Date())
     const seconds = Math.floor(( date - timestamp * 1000) / 1000);
   
     let interval = Math.floor(seconds / 31536000);

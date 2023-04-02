@@ -10,7 +10,9 @@ const InnerContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    padding-bottom: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid grey;
 `
 const StyledButton = styled.button`
     border-radius: 9999px;
@@ -22,8 +24,8 @@ const StyledButton = styled.button`
 `
 
 const Header = styled.h1`
-    font-size: 40px;
-    font-weight: 700;
+    font-size: 32px;
+    font-weight: 600;
 `
 
 export { Container, InnerContainer, StyledButton, Header}

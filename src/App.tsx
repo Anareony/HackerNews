@@ -1,16 +1,16 @@
-import List from './components/List'
-import dataStore from './store/store';
 import React from "react";
-import {  Routes, Route } from 'react-router-dom';
-import NewsPage from './pages/NewsPage';
+import { Routes, Route } from 'react-router-dom';
+
+import NewsPage from './pages/NewsPage/NewsPage';
+import MainPage from './pages/MainPage/MainPage';
+
 import './App.css'
 
 
-function App() {
-    
+const App:React.FC = () => {
     return (
         <Routes>
-            <Route path='/' element={<List number={dataStore}/>}/>
+            <Route path='/' element={<MainPage/>}/>
                 <Route path=':id' element={<NewsPage/>}/>
         </Routes>
     );

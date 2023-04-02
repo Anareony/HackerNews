@@ -1,39 +1,84 @@
 import axios from 'axios'
-import { makeObservable, observable, toJS} from 'mobx'
+import { toJS, runInAction, makeAutoObservable } from 'mobx'
+
+import { IStory } from '../types/types'
 
 class DataStore {
-    data: string[]
-    storys: string[]
+    baseUrl = 'https://hacker-news.firebaseio.com/v0'
+    newStoriesUrl = `${this.baseUrl}/newstories.json?print=pretty?`
+    itemUrl = `${this.baseUrl}/item/`;
 
+    storiesIds: number[]
+    stories: IStory[]
+    isNewsLoaded:boolean
+    
     constructor() {
-        this.data = []
-        this.storys = []
+        makeAutoObservable(this)
 
-        makeObservable(this,{
-            data: observable,
-            storys: observable
-        })
+        this.storiesIds = []
+        this.stories = []
+        this.isNewsLoaded = false
 
-        this.getData()    
+        this.getStories()
+        this.timer()
     }
 
-    getData = async () => {
-        await axios.get("https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty?")
+    timer = () => setInterval(() => this.getStories(), 60000)
+
+    getStories = async () => {
+        try {
+            this.storiesIds = []
+            this.stories = []
+            this.isNewsLoaded = false
+            
+            await axios
+            .get(`${this.newStoriesUrl}`)
             .then(response => {
-                const slicedArray = response.data.slice(0, 100);
-                this.data = slicedArray
+                runInAction(() => {
+                    const slicedArray = response.data.slice(0, 100);
+                    this.storiesIds = slicedArray
+                })
             })
 
-        this.data.map( story => {
-                axios.get(`https://hacker-news.firebaseio.com/v0/item/${story}.json?print=pretty`)
-                .then(response => {
-                const project = JSON.stringify(response.data)
-                this.storys.push(toJS(response.data))
-                console.log(toJS(this.storys))
-            })
-        }) 
+            this.storiesIds.map( async storyId => {
+                await axios
+                    .get(`${this.itemUrl + storyId}.json?print=pretty`)
+                    .then(response => {
+                        runInAction(() => {
+                            this.stories.push(toJS(response.data))
+                            this.stories.sort((a:IStory,b:IStory) => b.time - a.time)
+                            this.isNewsLoaded = true
+                        })
+                    })
+            }) 
+        } catch(err) {
+            console.error(err);
+        }
+    }
+
+    getStory = async (storyId:string) => {
+            try {
+                const res = await axios
+                    .get(`${this.itemUrl + storyId}.json?print=pretty`)
+                    .then(({ data }) => data);
+                return res;
+            } catch (err) {
+                    console.error(err);
+            }
+    }
+
+    getComment = async (commentId:number) => {
+        try {
+            const res = await axios
+                .get(`${this.itemUrl + commentId}.json?print=pretty`)
+                .then(({ data }) => data)
+            return res;
+        } catch (err) {
+            console.error(err);
+        } 
     }
 }
 
 const dataStore = new DataStore()
+
 export default dataStore

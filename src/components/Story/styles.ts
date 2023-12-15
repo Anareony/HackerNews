@@ -17,7 +17,7 @@ const Title = styled.p`
     padding-top: 5px;
 `
 const StyledLink = styled(Link)`
-    
+    display: block;
 `
 
 export { Container, By, Title, Score, StyledLink }
